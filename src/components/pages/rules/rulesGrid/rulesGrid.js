@@ -8,7 +8,7 @@ import { Btn, PcsGrid, Protected } from 'components/shared';
 import { rulesColumnDefs, defaultRulesGridProps } from './rulesGridConfig';
 import { checkboxColumn } from 'components/shared/pcsGrid/pcsGridConfig';
 import { isFunc, translateColumnDefs, svgs } from 'utilities';
-import { EditRuleFlyout, RuleStatusContainer, DeleteRuleContainer } from '../flyouts'
+import { EditRuleFlyout, RuleDetailsFlyout, RuleStatusContainer, DeleteRuleContainer } from '../flyouts'
 
 import './rulesGrid.css';
 
@@ -103,6 +103,8 @@ export class RulesGrid extends Component {
 
   getOpenFlyout = () => {
     switch (this.state.openFlyoutName) {
+      case 'view':
+        return <RuleDetailsFlyout onClose={this.closeFlyout} t={this.props.t} rule={this.state.softSelectedRule || this.state.selectedRules[0]} key="view-rule-flyout" />
       case 'edit':
         return <EditRuleFlyout onClose={this.closeFlyout} t={this.props.t} rule={this.state.softSelectedRule || this.state.selectedRules[0]} key="edit-rule-flyout" />
       case 'status':
@@ -158,7 +160,7 @@ export class RulesGrid extends Component {
     if (!suppressFlyouts) {
       if (rule) {
         this.setState({
-          openFlyoutName: 'edit',
+          openFlyoutName: 'view',
           softSelectedRule: rule
         });
       } else {
@@ -189,7 +191,8 @@ export class RulesGrid extends Component {
       enableSorting: true,
       unSortIcon: true,
       context: {
-        t: this.props.t
+        t: this.props.t,
+        deviceGroups: this.props.deviceGroups
       },
       /* Grid Events */
       onRowClicked: ({ node }) => node.setSelected(!node.isSelected()),

@@ -253,6 +253,7 @@ export class RuleDetails extends Component {
       match,
       theme,
       t,
+      deviceGroups,
       onTimeIntervalChange,
       timeInterval
     } = this.props;
@@ -272,7 +273,8 @@ export class RuleDetails extends Component {
       onHardSelectChange: this.onAlertGridHardSelectChange,
       onGridReady: this.onAlertGridReady,
       onRowClicked: ({ node }) => node.setSelected(!node.isSelected()),
-      t
+      t,
+      deviceGroups
     };
 
     const { selectedTab, selectedAlert = {} } = this.state;
@@ -353,6 +355,7 @@ export class RuleDetails extends Component {
               <h4 className="sub-heading">{ t('maintenance.ruleDetail') }</h4>
               <RulesGrid
                 t={t}
+                deviceGroups={deviceGroups}
                 style={{ height: 2 * ROW_HEIGHT + 2 }}
                 onGridReady={this.onRuleGridReady}
                 onContextMenuChange={this.onContextMenuChange('ruleContextBtns')}
