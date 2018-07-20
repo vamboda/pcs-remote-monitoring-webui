@@ -13,9 +13,6 @@ import Main from './main/main';
 // Page Components
 import  {
   DashboardContainer as DashboardPage,
-  DevicesContainer as DevicesPage,
-  RulesContainer as RulesPage,
-  MaintenanceContainer as MaintenancePage,
   PageNotFoundContainer as PageNotFound
 } from 'components/pages';
 
@@ -25,10 +22,7 @@ import './app.css';
 
 /** The navigation tab configurations */
 const dashboardTab   = { to: '/dashboard',   svg: svgs.tabs.dashboard,   labelId: 'tabs.dashboard' };
-const devicesTab     = { to: '/devices',     svg: svgs.tabs.devices,     labelId: 'tabs.devices' };
-const rulesTab       = { to: '/rules',       svg: svgs.tabs.rules,       labelId: 'tabs.rules' };
-const maintenanceTab = { to: '/maintenance', svg: svgs.tabs.maintenance, labelId: 'tabs.maintenance' };
-const tabConfigs = [ dashboardTab, devicesTab, rulesTab, maintenanceTab ];
+const tabConfigs = [ dashboardTab];
 
 /** The base component for the app */
 class App extends Component {
@@ -59,9 +53,6 @@ class App extends Component {
             <Switch>
               <Redirect exact from="/" to={dashboardTab.to} />
               <Route exact path={dashboardTab.to} component={DashboardPage} />
-              <Route exact path={devicesTab.to} component={DevicesPage} />
-              <Route exact path={rulesTab.to} component={RulesPage} />
-              <Route path={maintenanceTab.to} component={MaintenancePage} />
               <Route component={PageNotFound} />
             </Switch>
             { this.props.deviceGroupFlyoutIsOpen && <ManageDeviceGroupsContainer /> }

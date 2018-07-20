@@ -351,16 +351,6 @@ export class Dashboard extends Component {
       </ContextMenu>,
       <PageContent className="dashboard-container" key="page-content">
         <Grid>
-          <Cell className="col-1 devices-overview-cell">
-            <OverviewPanel
-              openWarningCount={openWarningCount}
-              openCriticalCount={openCriticalCount}
-              onlineDeviceCount={onlineDeviceCount}
-              offlineDeviceCount={offlineDeviceCount}
-              isPending={analyticsIsPending || devicesIsPending}
-              error={deviceGroupError || devicesError || analyticsError}
-              t={t} />
-          </Cell>
           <Cell className="col-5">
             <PanelErrorBoundary msg={t('dashboard.panels.map.runtimeError')}>
               <MapPanel
@@ -373,34 +363,6 @@ export class Dashboard extends Component {
                 error={azureMapsKeyError || devicesError || analyticsError}
                 t={t} />
             </PanelErrorBoundary>
-          </Cell>
-          <Cell className="col-3">
-            <AlertsPanel
-              alerts={currentActiveAlertsWithName}
-              isPending={analyticsIsPending || rulesIsPending}
-              error={rulesError || analyticsError}
-              t={t} />
-          </Cell>
-          <Cell className="col-6">
-            <TelemetryPanel
-              telemetry={telemetry}
-              isPending={telemetryIsPending}
-              lastRefreshed={lastRefreshed}
-              error={deviceGroupError || telemetryError}
-              theme={theme}
-              colors={chartColorObjects}
-              t={t} />
-          </Cell>
-          <Cell className="col-4">
-            <AnalyticsPanel
-              topAlerts={topAlertsWithName}
-              alertsPerDeviceId={alertsPerDeviceType}
-              criticalAlertsChange={criticalAlertsChange}
-              isPending={analyticsIsPending || rulesIsPending || devicesIsPending}
-              error={devicesError || rulesError || analyticsError}
-              theme={theme}
-              colors={chartColorObjects}
-              t={t} />
           </Cell>
         </Grid>
       </PageContent>
