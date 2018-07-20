@@ -2,11 +2,10 @@
 
 import 'rxjs';
 import { Observable } from 'rxjs';
-import { ConfigService, GitHubService } from 'services';
+import { AuthService, ConfigService, GitHubService } from 'services';
 import { schema, normalize } from 'normalizr';
 import { createSelector } from 'reselect';
 import update from 'immutability-helper';
-import { permissions } from 'services/models';
 import {
   createAction,
   createReducerScenario,
@@ -30,11 +29,25 @@ export const epics = createEpicScenario({
   initializeApp: {
     type: 'APP_INITIALIZE',
     epic: () => [
+      epics.actions.fetchUser(),
       epics.actions.fetchAzureMapsKey(),
       epics.actions.fetchDeviceGroups(),
       epics.actions.fetchLogo(),
       epics.actions.fetchReleaseInformation()
     ]
+  },
+
+  /** Get the user */
+  fetchUser: {
+    type: 'APP_USER_FETCH',
+    epic: (fromAction, store) =>
+      AuthService.getCurrentUser()
+        .flatMap(payload => {
+          const actions = [];
+          actions.push(toActionCreator(redux.actions.updateUser, fromAction)(payload));
+          return actions;
+        })
+        .catch(handleError(fromAction))
   },
 
   /** Get the account's device groups */
@@ -123,28 +136,14 @@ const initialState = {
   azureMapsKey: '',
   deviceGroupFlyoutIsOpen: false,
   timeInterval: 'PT1H',
+  userPermissions: undefined
+};
 
-  //TODO: Get this from the server. This is just hardcoded test data for now.
-  userPermissions: new Set([
-    permissions.createDeviceGroups,
-    permissions.deleteDeviceGroups,
-    permissions.updateDeviceGroups,
-
-    permissions.createDevices,
-    permissions.deleteDevices,
-    permissions.updateDevices,
-
-    permissions.createRules,
-    permissions.deleteRules,
-    permissions.updateRules,
-
-    permissions.deleteAlarms,
-    permissions.updateAlarms,
-
-    permissions.createJobs,
-
-    permissions.updateSIMManagement
-  ])
+const updateUserReducer = (state, { payload, fromAction }) => {
+  return update(state, {
+    userPermissions: { $set: new Set(payload.permissions) },
+    ...setPending(fromAction.type, false)
+  });
 };
 
 const updateDeviceGroupsReducer = (state, { payload, fromAction }) => {
@@ -209,6 +208,7 @@ const fetchableTypes = [
 ];
 
 export const redux = createReducerScenario({
+  updateUser: { type: 'APP_USER_UPDATE', reducer: updateUserReducer },
   updateDeviceGroups: { type: 'APP_DEVICE_GROUP_UPDATE', reducer: updateDeviceGroupsReducer },
   deleteDeviceGroups: { type: 'APP_DEVICE_GROUP_DELETE', reducer: deleteDeviceGroupsReducer },
   insertDeviceGroups: { type: 'APP_DEVICE_GROUP_INSERT', reducer: insertDeviceGroupsReducer },

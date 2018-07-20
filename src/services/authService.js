@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+import Config from 'app.config';
+import { HttpClient } from './httpClient';
+import { toUserModel } from './models';
 import AuthenticationContext from 'adal-angular/dist/adal.min.js'
 import { Observable } from 'rxjs';
+
+const ENDPOINT = Config.serviceUrls.auth;
 
 export class AuthService {
 
@@ -100,6 +105,12 @@ export class AuthService {
       console.log('The user is not signed in');
       AuthService.authContext.login();
     }
+  }
+
+  /** Returns a the current user */
+  static getCurrentUser() {
+    return HttpClient.get(`${ENDPOINT}users/current`)
+      .map(toUserModel);
   }
 
   static logout() {

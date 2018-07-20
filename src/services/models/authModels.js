@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+import { camelCaseReshape } from 'utilities';
+
 export const permissions = {
   createDeviceGroups: 'CreateDeviceGroups',
   deleteDeviceGroups: 'DeleteDeviceGroups',
@@ -20,3 +22,10 @@ export const permissions = {
 
   updateSIMManagement: 'UpdateSIMManagement'
 };
+
+export const toUserModel = (user = {}) => camelCaseReshape(user, {
+  'id': 'id',
+  'email': 'email',
+  'name': 'name',
+  'allowedActions': 'permissions'
+});
