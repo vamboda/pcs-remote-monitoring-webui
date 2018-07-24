@@ -13,13 +13,13 @@ import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/
 import { ManageDeviceGroupsBtnContainer as ManageDeviceGroupsBtn } from 'components/app/manageDeviceGroupsBtn';
 import { TimeIntervalDropdown } from 'components/app/timeIntervalDropdown';
 import {
-  OverviewPanel,
-  AlertsPanel,
-  TelemetryPanel,
-  AnalyticsPanel,
+  // OverviewPanel,
+  // AlertsPanel,
+  // TelemetryPanel,
+  // AnalyticsPanel,
   MapPanel,
-  transformTelemetryResponse,
-  chartColorObjects
+  // transformTelemetryResponse,
+  // chartColorObjects
 } from './panels';
 import { ContextMenu, PageContent, RefreshBar } from 'components/shared';
 
@@ -69,164 +69,164 @@ export class Dashboard extends Component {
 
   componentDidMount() {
     // Load the rules
-    if (!this.props.rulesError) this.props.fetchRules();
+    //if (!this.props.rulesError) this.props.fetchRules();
 
     // Telemetry stream - START
-    const onPendingStart = () => this.setState({ telemetryIsPending: true });
+    // onPendingStart = () => this.setState({ telemetryIsPending: true });
 
-    const getTelemetryStream = ({ deviceIds = [] }) => TelemetryService.getTelemetryByDeviceIdP15M(deviceIds)
-      .merge(
-        this.telemetryRefresh$ // Previous request complete
-          .delay(Config.telemetryRefreshInterval) // Wait to refresh
-          .do(onPendingStart)
-          .flatMap(_ => TelemetryService.getTelemetryByDeviceIdP1M(deviceIds))
-      )
-      .flatMap(transformTelemetryResponse(() => this.state.telemetry))
-      .map(telemetry => ({ telemetry, telemetryIsPending: false })) // Stream emits new state
-      // Retry any retryable errors
-      .retryWhen(retryHandler(maxRetryAttempts, retryWaitTime));
-      // Telemetry stream - END
+    // const getTelemetryStream = ({ deviceIds = [] }) => TelemetryService.getTelemetryByDeviceIdP15M(deviceIds)
+    //   .merge(
+    //     this.telemetryRefresh$ // Previous request complete
+    //       .delay(Config.telemetryRefreshInterval) // Wait to refresh
+    //       .do(onPendingStart)
+    //       .flatMap(_ => TelemetryService.getTelemetryByDeviceIdP1M(deviceIds))
+    //   )
+    //   .flatMap(transformTelemetryResponse(() => this.state.telemetry))
+    //   .map(telemetry => ({ telemetry, telemetryIsPending: false })) // Stream emits new state
+    //   // Retry any retryable errors
+    //   .retryWhen(retryHandler(maxRetryAttempts, retryWaitTime));
+    //   // Telemetry stream - END
 
-      // Analytics stream - START
+    //   // Analytics stream - START
 
-      // TODO: Add device ids to params - START
-      const getAnalyticsStream = ({ deviceIds = [], timeInterval }) => this.panelsRefresh$
-        .delay(Config.dashboardRefreshInterval)
-        .startWith(0)
-        .do(_ => this.setState({ analyticsIsPending: true }))
-        .flatMap(_ => {
-          const devices = deviceIds.length ? deviceIds.join(',') : undefined;
-          const [ currentIntervalParams, previousIntervalParams ] = getIntervalParams(timeInterval);
+    //   // TODO: Add device ids to params - START
+    //   const getAnalyticsStream = ({ deviceIds = [], timeInterval }) => this.panelsRefresh$
+    //     .delay(Config.dashboardRefreshInterval)
+    //     .startWith(0)
+    //     .do(_ => this.setState({ analyticsIsPending: true }))
+    //     .flatMap(_ => {
+    //       const devices = deviceIds.length ? deviceIds.join(',') : undefined;
+    //       const [ currentIntervalParams, previousIntervalParams ] = getIntervalParams(timeInterval);
 
-          const currentParams = { ...currentIntervalParams, devices };
-          const previousParams = { ...previousIntervalParams, devices };
+    //       const currentParams = { ...currentIntervalParams, devices };
+    //       const previousParams = { ...previousIntervalParams, devices };
 
-          return Observable.forkJoin(
-            TelemetryService.getActiveAlerts(currentParams),
-            TelemetryService.getActiveAlerts(previousParams),
+    //       return Observable.forkJoin(
+    //         TelemetryService.getActiveAlerts(currentParams),
+    //         TelemetryService.getActiveAlerts(previousParams),
 
-            TelemetryService.getAlerts(currentParams),
-            TelemetryService.getAlerts(previousParams)
-          )
-        }).map(([
-          currentActiveAlerts,
-          previousActiveAlerts,
+    //         TelemetryService.getAlerts(currentParams),
+    //         TelemetryService.getAlerts(previousParams)
+    //       )
+    //     }).map(([
+    //       currentActiveAlerts,
+    //       previousActiveAlerts,
 
-          currentAlerts,
-          previousAlerts
-        ]) => {
-          // Process all the data out of the currentAlerts list
-          const currentAlertsStats = currentAlerts.reduce((acc, alert) => {
-              const isOpen = alert.status === Config.alertStatus.open;
-              const isWarning = alert.severity === Config.ruleSeverity.warning;
-              const isCritical = alert.severity === Config.ruleSeverity.critical;
-              let updatedAlertsPerDeviceId = acc.alertsPerDeviceId;
-              if (alert.deviceId) {
-                updatedAlertsPerDeviceId = {
-                  ...updatedAlertsPerDeviceId,
-                  [alert.deviceId]: (updatedAlertsPerDeviceId[alert.deviceId] || 0) + 1
-                };
-              }
-              return {
-                openWarningCount: (acc.openWarningCount || 0) + (isWarning && isOpen ? 1 : 0),
-                openCriticalCount: (acc.openCriticalCount || 0) + (isCritical && isOpen ? 1 : 0),
-                totalCriticalCount: (acc.totalCriticalCount || 0) + (isCritical ? 1 : 0),
-                alertsPerDeviceId: updatedAlertsPerDeviceId
-              };
-            },
-            { alertsPerDeviceId: {} }
-          );
+    //       currentAlerts,
+    //       previousAlerts
+    //     ]) => {
+    //       // Process all the data out of the currentAlerts list
+    //       const currentAlertsStats = currentAlerts.reduce((acc, alert) => {
+    //           const isOpen = alert.status === Config.alertStatus.open;
+    //           const isWarning = alert.severity === Config.ruleSeverity.warning;
+    //           const isCritical = alert.severity === Config.ruleSeverity.critical;
+    //           let updatedAlertsPerDeviceId = acc.alertsPerDeviceId;
+    //           if (alert.deviceId) {
+    //             updatedAlertsPerDeviceId = {
+    //               ...updatedAlertsPerDeviceId,
+    //               [alert.deviceId]: (updatedAlertsPerDeviceId[alert.deviceId] || 0) + 1
+    //             };
+    //           }
+    //           return {
+    //             openWarningCount: (acc.openWarningCount || 0) + (isWarning && isOpen ? 1 : 0),
+    //             openCriticalCount: (acc.openCriticalCount || 0) + (isCritical && isOpen ? 1 : 0),
+    //             totalCriticalCount: (acc.totalCriticalCount || 0) + (isCritical ? 1 : 0),
+    //             alertsPerDeviceId: updatedAlertsPerDeviceId
+    //           };
+    //         },
+    //         { alertsPerDeviceId: {} }
+    //       );
 
-          // ================== Critical Alerts Count - START
-          const currentCriticalAlerts = currentAlertsStats.totalCriticalCount;
-          const previousCriticalAlerts = previousAlerts.reduce(
-            (cnt, { severity }) => severity === Config.ruleSeverity.critical ? cnt + 1 : cnt,
-            0
-          );
-          const criticalAlertsChange = ((currentCriticalAlerts - previousCriticalAlerts) / currentCriticalAlerts * 100).toFixed(2);
-          // ================== Critical Alerts Count - END
+    //       // ================== Critical Alerts Count - START
+    //       const currentCriticalAlerts = currentAlertsStats.totalCriticalCount;
+    //       const previousCriticalAlerts = previousAlerts.reduce(
+    //         (cnt, { severity }) => severity === Config.ruleSeverity.critical ? cnt + 1 : cnt,
+    //         0
+    //       );
+    //       const criticalAlertsChange = ((currentCriticalAlerts - previousCriticalAlerts) / currentCriticalAlerts * 100).toFixed(2);
+    //       // ================== Critical Alerts Count - END
 
-          // ================== Top Alerts - START
-          const currentTopAlerts = currentActiveAlerts
-            .sort(compareByProperty('count'))
-            .slice(0, Config.maxTopAlerts);
+    //       // ================== Top Alerts - START
+    //       const currentTopAlerts = currentActiveAlerts
+    //         .sort(compareByProperty('count'))
+    //         .slice(0, Config.maxTopAlerts);
 
-          // Find the previous counts for the current top analytics
-          const previousTopAlertsMap = previousActiveAlerts.reduce(
-            (acc, { ruleId, count }) =>
-              (ruleId in acc)
-                ? { ...acc, [ruleId]: count }
-                : acc
-            ,
-            currentTopAlerts.reduce((acc, { ruleId }) => ({ ...acc, [ruleId]: 0 }), {})
-          );
+    //       // Find the previous counts for the current top analytics
+    //       const previousTopAlertsMap = previousActiveAlerts.reduce(
+    //         (acc, { ruleId, count }) =>
+    //           (ruleId in acc)
+    //             ? { ...acc, [ruleId]: count }
+    //             : acc
+    //         ,
+    //         currentTopAlerts.reduce((acc, { ruleId }) => ({ ...acc, [ruleId]: 0 }), {})
+    //       );
 
-          const topAlerts = currentTopAlerts.map(({ ruleId, count }) => ({
-            ruleId,
-            count,
-            previousCount: previousTopAlertsMap[ruleId] || 0
-          }));
-          // ================== Top Alerts - END
+    //       const topAlerts = currentTopAlerts.map(({ ruleId, count }) => ({
+    //         ruleId,
+    //         count,
+    //         previousCount: previousTopAlertsMap[ruleId] || 0
+    //       }));
+    //       // ================== Top Alerts - END
 
-          const devicesInAlert = currentAlerts
-            .filter(({ status }) => status === Config.alertStatus.open)
-            .reduce((acc, { deviceId, severity, ruleId}) => {
-              return {
-                ...acc,
-                [deviceId]: { severity, ruleId }
-              };
-            }, {});
+    //       const devicesInAlert = currentAlerts
+    //         .filter(({ status }) => status === Config.alertStatus.open)
+    //         .reduce((acc, { deviceId, severity, ruleId}) => {
+    //           return {
+    //             ...acc,
+    //             [deviceId]: { severity, ruleId }
+    //           };
+    //         }, {});
 
-          return ({
-            analyticsIsPending: false,
-            analyticsVersion: this.state.analyticsVersion + 1,
+    //       return ({
+    //         analyticsIsPending: false,
+    //         analyticsVersion: this.state.analyticsVersion + 1,
 
-            // Analytics data
-            currentActiveAlerts,
-            topAlerts,
-            criticalAlertsChange,
-            alertsPerDeviceId: currentAlertsStats.alertsPerDeviceId,
+    //         // Analytics data
+    //         currentActiveAlerts,
+    //         topAlerts,
+    //         criticalAlertsChange,
+    //         alertsPerDeviceId: currentAlertsStats.alertsPerDeviceId,
 
-            // Summary data
-            openWarningCount: currentAlertsStats.openWarningCount,
-            openCriticalCount: currentAlertsStats.openCriticalCount,
+    //         // Summary data
+    //         openWarningCount: currentAlertsStats.openWarningCount,
+    //         openCriticalCount: currentAlertsStats.openCriticalCount,
 
-            // Map data
-            devicesInAlert
-          });
-        })
-        // Retry any retryable errors
-        .retryWhen(retryHandler(maxRetryAttempts, retryWaitTime));
-      // Analytics stream - END
+    //         // Map data
+    //         devicesInAlert
+    //       });
+    //     })
+    //     // Retry any retryable errors
+    //     .retryWhen(retryHandler(maxRetryAttempts, retryWaitTime));
+    //   // Analytics stream - END
 
-      this.subscriptions.push(
-        this.dashboardRefresh$
-          .subscribe(() => this.setState(initialState))
-      );
+    //   this.subscriptions.push(
+    //     this.dashboardRefresh$
+    //       .subscribe(() => this.setState(initialState))
+    //   );
 
-      this.subscriptions.push(
-        this.dashboardRefresh$
-          .switchMap(getTelemetryStream)
-          .subscribe(
-            telemetryState => this.setState(
-              { ...telemetryState, lastRefreshed: moment() },
-              () => this.telemetryRefresh$.next('r')
-            ),
-            telemetryError => this.setState({ telemetryError, telemetryIsPending: false })
-          )
-      );
+    //   this.subscriptions.push(
+    //     this.dashboardRefresh$
+    //       .switchMap(getTelemetryStream)
+    //       .subscribe(
+    //         telemetryState => this.setState(
+    //           { ...telemetryState, lastRefreshed: moment() },
+    //           () => this.telemetryRefresh$.next('r')
+    //         ),
+    //         telemetryError => this.setState({ telemetryError, telemetryIsPending: false })
+    //       )
+    //   );
 
-      this.subscriptions.push(
-        this.dashboardRefresh$
-          .switchMap(getAnalyticsStream)
-          .subscribe(
-            analyticsState => this.setState(
-              { ...analyticsState, lastRefreshed: moment() },
-              () => this.panelsRefresh$.next('r')
-            ),
-            analyticsError => this.setState({ analyticsError, analyticsIsPending: false })
-          )
-      );
+    //   this.subscriptions.push(
+    //     this.dashboardRefresh$
+    //       .switchMap(getAnalyticsStream)
+    //       .subscribe(
+    //         analyticsState => this.setState(
+    //           { ...analyticsState, lastRefreshed: moment() },
+    //           () => this.panelsRefresh$.next('r')
+    //         ),
+    //         analyticsError => this.setState({ analyticsError, analyticsIsPending: false })
+    //       )
+    //   );
 
       // Start polling all panels
       if (this.props.deviceLastUpdated) {
@@ -281,59 +281,55 @@ export class Dashboard extends Component {
       t
     } = this.props;
     const {
-      telemetry,
-      telemetryIsPending,
-      telemetryError,
-
+      // telemetry,
+      // telemetryIsPending,
+      // telemetryError,
       analyticsVersion,
-      currentActiveAlerts,
-      topAlerts,
-      alertsPerDeviceId,
-      criticalAlertsChange,
+      // currentActiveAlerts,
+      // topAlerts,
+      // alertsPerDeviceId,
+      // criticalAlertsChange,
       analyticsIsPending,
       analyticsError,
-
-      openWarningCount,
-      openCriticalCount,
-
+      // openWarningCount,
+      // openCriticalCount,
       devicesInAlert,
-
       lastRefreshed
     } = this.state;
 
     // Count the number of online and offline devices
-    const deviceIds = Object.keys(devices);
-    const onlineDeviceCount =
-      deviceIds.length
-        ? deviceIds.reduce((count, deviceId) => devices[deviceId].connected ? count + 1 : count, 0)
-        : undefined;
-    const offlineDeviceCount =
-      deviceIds.length
-        ? deviceIds.length - onlineDeviceCount
-        : undefined;
+    //const deviceIds = Object.keys(devices);
+    // const onlineDeviceCount =
+    //   deviceIds.length
+    //     ? deviceIds.reduce((count, deviceId) => devices[deviceId].connected ? count + 1 : count, 0)
+    //     : undefined;
+    // const offlineDeviceCount =
+    //   deviceIds.length
+    //     ? deviceIds.length - onlineDeviceCount
+    //     : undefined;
 
-    // Add the alert rule name to the list of top alerts
-    const topAlertsWithName = topAlerts.map(alert => ({
-      ...alert,
-      name: (rules[alert.ruleId] || {}).name || alert.ruleId,
-    }));
+    // // Add the alert rule name to the list of top alerts
+    // const topAlertsWithName = topAlerts.map(alert => ({
+    //   ...alert,
+    //   name: (rules[alert.ruleId] || {}).name || alert.ruleId,
+    // }));
 
     // Add the alert rule name to the list of currently active alerts
-    const currentActiveAlertsWithName = currentActiveAlerts.map(alert => ({
-      ...alert,
-      name: (rules[alert.ruleId] || {}).name || alert.ruleId,
-      // limit the number shown in the UI to 1000 active
-      count: Math.min(alert.count, Config.maxAlertsCount)
-    }));
+    // const currentActiveAlertsWithName = currentActiveAlerts.map(alert => ({
+    //   ...alert,
+    //   name: (rules[alert.ruleId] || {}).name || alert.ruleId,
+    //   // limit the number shown in the UI to 1000 active
+    //   count: Math.min(alert.count, Config.maxAlertsCount)
+    // }));
 
-    // Convert the list of alerts by device id to alerts by device type
-    const alertsPerDeviceType = Object.keys(alertsPerDeviceId).reduce((acc, deviceId) => {
-      const deviceType = (devices[deviceId] || {}).type || deviceId;
-      return {
-        ...acc,
-        [deviceType]: (acc[deviceType] || 0) + alertsPerDeviceId[deviceId]
-      };
-    }, {});
+    // // Convert the list of alerts by device id to alerts by device type
+    // const alertsPerDeviceType = Object.keys(alertsPerDeviceId).reduce((acc, deviceId) => {
+    //   const deviceType = (devices[deviceId] || {}).type || deviceId;
+    //   return {
+    //     ...acc,
+    //     [deviceType]: (acc[deviceType] || 0) + alertsPerDeviceId[deviceId]
+    //   };
+    // }, {});
 
     return [
       <ContextMenu key="context-menu">
