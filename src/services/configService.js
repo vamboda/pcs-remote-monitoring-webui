@@ -8,8 +8,9 @@ import {
   toDeviceGroupsModel,
   toSolutionSettingThemeModel
 } from './models';
+import { Observable } from 'rxjs';
 
-const ENDPOINT = Config.serviceUrls.config;
+const ENDPOINT = "http://localhost:5000/";
 
 /** Contains methods for calling the config service */
 export class ConfigService {
@@ -19,6 +20,11 @@ export class ConfigService {
     return HttpClient.get(`${ENDPOINT}devicegroups`)
       .map(toDeviceGroupsModel);
   }
+
+    /** Returns list of vehicles**/
+    static getVehicles() {
+      return HttpClient.get(`${ENDPOINT}vehicles`);
+    }
 
   /** Creates a new device group */
   static createDeviceGroup(payload) {
@@ -39,9 +45,7 @@ export class ConfigService {
 
   /** Returns the azure map key for the account */
   static getAzureMapKey() {
-    return HttpClient.get(`${ENDPOINT}solution-settings/theme`)
-      .map(toSolutionSettingThemeModel)
-      .map(response => response.azureMapsKey);
+    return Observable.of("hbBBC5OVFUQz0-p71o4emRAHcSCNgy1BLDBYUB4Q69A");
   }
 
   static getLogo() {

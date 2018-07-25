@@ -9,8 +9,10 @@ import {
   getAzureMapsKeyPendingStatus,
   getDeviceGroupError,
   getTheme,
-  getTimeInterval
+  getTimeInterval,
+  getVehicles
 } from 'store/reducers/appReducer';
+
 import {
   epics as rulesEpics,
   getEntities as getRuleEntities,
@@ -26,6 +28,7 @@ import {
 
 import { Dashboard } from './dashboard';
 
+
 const mapStateToProps = state => ({
   azureMapsKey: getAzureMapsKey(state),
   azureMapsKeyError: getAzureMapsKeyError(state),
@@ -33,6 +36,7 @@ const mapStateToProps = state => ({
   deviceGroupError: getDeviceGroupError(state),
   deviceLastUpdated: getDevicesLastUpdated(state),
   devices: getDeviceEntities(state),
+  vehicles: getVehicles(state),
   devicesError: getDevicesError(state),
   devicesIsPending: getDevicesPendingStatus(state),
   rules: getRuleEntities(state),

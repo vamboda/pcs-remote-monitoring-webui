@@ -15,19 +15,19 @@ export class DeviceGroupDropdown extends Component {
     }
   }
 
-  deviceGroupsToOptions = deviceGroups => deviceGroups
-    .map(({ id, displayName }) => ({ label: displayName, value: id }));
+  vehiclesToOptions = vehicles => vehicles
+    .map(({ VehicleId }) => ({ label: VehicleId, value: VehicleId }));
 
   render() {
-    const { deviceGroups, activeDeviceGroupId } = this.props;
-    const deviceGroupIds = deviceGroups.map(({ id }) => id);
+    const {vehicles} = this.props;
+    const vehicleIds = vehicles.map(({ VehicleId }) => VehicleId);
     return (
       <Select
         className="device-group-dropdown"
-        options={this.deviceGroupsToOptions(deviceGroups)}
-        value={activeDeviceGroupId}
+        options={this.vehiclesToOptions(vehicles)}
+        value={vehicleIds[0]}
         clearable={false}
-        onChange={this.onChange(deviceGroupIds)} />
+        onChange={this.onChange(vehicleIds)} />
     );
   }
 }

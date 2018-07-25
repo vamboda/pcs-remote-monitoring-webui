@@ -271,6 +271,7 @@ export class Dashboard extends Component {
       azureMapsKeyIsPending,
 
       devices,
+      vehicles,
       devicesError,
       devicesIsPending,
       deviceGroupError,
@@ -353,6 +354,7 @@ export class Dashboard extends Component {
                 analyticsVersion={analyticsVersion}
                 azureMapsKey={azureMapsKey}
                 devices={devices}
+                vehicles={vehicles}
                 devicesInAlert={devicesInAlert}
                 mapKeyIsPending={azureMapsKeyIsPending}
                 isPending={devicesIsPending || analyticsIsPending}

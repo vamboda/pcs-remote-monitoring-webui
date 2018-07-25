@@ -49,7 +49,8 @@ export const epics = createEpicScenario({
     type: 'APP_INITIALIZE',
     epic: () => [
       epics.actions.fetchAzureMapsKey(),
-      epics.actions.fetchDeviceGroups(),
+      epics.actions.fetchVehicles(),
+      // epics.actions.fetchDeviceGroups(),
       // epics.actions.fetchLogo(),
       // epics.actions.fetchReleaseInformation()
     ]
@@ -80,6 +81,15 @@ export const epics = createEpicScenario({
       .map(toActionCreator(redux.actions.updateAzureMapsKeyGroup, fromAction))
       .catch(handleError(fromAction))
   },
+
+    /** Get the vehicles */
+    fetchVehicles: {
+      type: 'APP_VEHICLES_FETCH',
+      epic: fromAction =>
+        ConfigService.getVehicles()
+        .map(toActionCreator(redux.actions.updateVehicles, fromAction))
+        .catch(handleError(fromAction))
+    },
 
   /** Listen to route events and emit a route change event when the url changes */
   detectRouteChange: {
@@ -217,6 +227,16 @@ const updateAzureMapsKeyReducer = (state, {
   ...setPending(fromAction.type, false)
 });
 
+const updateVehiclesReducer = (state, {
+  payload,
+  fromAction
+}) => update(state, {
+  vehicles: {
+    $set: payload
+  },
+  ...setPending(fromAction.type, false)
+});
+
 const updateActiveDeviceGroupsReducer = (state, {
   payload
 }) => {
@@ -307,6 +327,10 @@ export const redux = createReducerScenario({
     type: 'APP_ACTIVE_DEVICE_GROUP_UPDATE',
     reducer: updateActiveDeviceGroupsReducer
   },
+  updateVehicles: {
+    type: 'APP_VEHICLES_UPDATE',
+    reducer: updateVehiclesReducer
+  },
   changeTheme: {
     type: 'APP_CHANGE_THEME',
     reducer: updateThemeReducer
@@ -347,6 +371,7 @@ export const getAppReducer = state => state.app;
 export const getVersion = state => getAppReducer(state).version;
 export const getTheme = state => getAppReducer(state).theme;
 export const getDeviceGroupEntities = state => getAppReducer(state).deviceGroups;
+export const getVehicles = state => getAppReducer(state).vehicles;
 export const getActiveDeviceGroupId = state => getAppReducer(state).activeDeviceGroupId;
 export const getAzureMapsKey = state => getAppReducer(state).azureMapsKey;
 export const getDeviceGroupFlyoutStatus = state => getAppReducer(state).deviceGroupFlyoutIsOpen;

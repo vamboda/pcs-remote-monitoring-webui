@@ -1,13 +1,48 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import React, { Component } from 'react';
+import React, {
+  Component
+} from 'react';
 
 import Config from 'app.config';
-import { isFunc } from 'utilities';
+import {
+  isFunc
+} from 'utilities';
+
+import $ from 'jquery';
+window.jQuery = $;
+require('signalr');
 
 const AzureMaps = window.atlas;
 
 export class AzureMap extends Component {
+
+  constructor(props) {
+    super(props);
+
+    const signalRConnection = $.hubConnection('http://localhost:5000');
+    const updateMap = this.updateMap.bind(this);
+    // start the connection
+    signalRConnection.start()
+      .done(function () {
+        console.log('Now connected, connection ID=' + signalRConnection.id);
+      })
+      .fail(function () {
+        console.log('Could not connect');
+      });
+      // getting the hub proxy
+    var notificationHubProxy = signalRConnection.createHubProxy('signalRNotificationHub');
+
+    // attaching events listeners to the proxy
+    notificationHubProxy.on('locationModified', function (vehicleId, location) {
+      updateMap(vehicleId, location);
+    });
+
+    this.state = {
+      vehicleLocation: {},
+      signalRConnection: signalRConnection
+    }
+  }
 
   componentDidMount() {
     if (!this.map && this.props.azureMapsKey) {
@@ -45,8 +80,30 @@ export class AzureMap extends Component {
     });
   }
 
-  render() {
-    return <div id="map"></div>;
+  updateMap(vehicleId, location) {
+    if (this.map) {
+      // drop the pin at the current vehicle's location
+      var point = new AzureMaps.data.Point([
+        location.longitude,
+        location.latitude
+      ]);
+      var pin = new AzureMaps.data.Feature(point);
+
+      this.map.addPins([pin], {
+        title: vehicleId,
+        icon: "pin-blue",
+        textFont: "SegoeUi-Bold",
+        textOffset: [0, -20],
+        fontColor: "#000",
+        fontSize: 14,
+        iconSize: 1,
+        name: "default-pin-layer",
+        overwrite: true
+      });
+    }
   }
 
+  render() {
+    return <div id = "map"> </div>;
+  }
 }

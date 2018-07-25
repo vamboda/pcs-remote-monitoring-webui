@@ -3,11 +3,13 @@
 import { connect } from 'react-redux';
 import { translate } from 'react-i18next';
 import { redux as appRedux, getDeviceGroups, getActiveDeviceGroupId } from 'store/reducers/appReducer';
+import { getVehicles } from './../../../store/reducers/appReducer';
 
 import { DeviceGroupDropdown } from './deviceGroupDropdown';
 
 const mapStateToProps = state => ({
   deviceGroups: getDeviceGroups(state),
+  vehicles: getVehicles(state),
   activeDeviceGroupId: getActiveDeviceGroupId(state)
 });
 
