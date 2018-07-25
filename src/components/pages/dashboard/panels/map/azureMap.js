@@ -88,31 +88,11 @@ export class AzureMap extends Component {
         location.longitude,
         location.latitude
       ]);
+
+      // check if the new location is inside the map
+      this.setMapCamera(location);
+
       var pin = new AzureMaps.data.Feature(point);
-
-      // set cameras option and bring it to center
-      // var c = this.map.getCamera()
-      // c.center = [
-      //   location.longitude,
-      //   location.latitude
-      // ]
-      var cameraBounds = this.map.getCamera().bounds;
-      const point1 = [cameraBounds[1], cameraBounds[0]];
-      var point2 = [cameraBounds[1], cameraBounds[2]];
-      var point3 = [cameraBounds[3], cameraBounds[0]];
-      var point4 = [cameraBounds[3], cameraBounds[2]];
-
-      const cameraBoundsPolygon = [point1, point2, point3, point4];
-      const isVehicleInside = insideCameraBounds([location.latitude, location.longitude], cameraBoundsPolygon);
-      if(!isVehicleInside){
-        let c = this.map.getCamera();
-        c.center = [
-             location.longitude,
-             location.latitude
-          ];
-          this.map.setCamera(c);
-      }
-
       this.map.addPins([pin], {
         title: vehicleId,
         icon: "pin-blue",
@@ -124,6 +104,24 @@ export class AzureMap extends Component {
         name: "default-pin-layer",
         overwrite: true
       });
+    }
+  }
+
+  setMapCamera(location) {
+    var cameraBounds = this.map.getCamera().bounds;
+    const point1 = [cameraBounds[1], cameraBounds[0]];
+    var point2 = [cameraBounds[1], cameraBounds[2]];
+    var point3 = [cameraBounds[3], cameraBounds[0]];
+    var point4 = [cameraBounds[3], cameraBounds[2]];
+    const cameraBoundsPolygon = [point1, point2, point3, point4];
+    const isVehicleInside = insideCameraBounds([location.latitude, location.longitude], cameraBoundsPolygon);
+    if (!isVehicleInside) {
+      let c = this.map.getCamera();
+      c.center = [
+        location.longitude,
+        location.latitude
+      ];
+      this.map.setCamera(c);
     }
   }
 
