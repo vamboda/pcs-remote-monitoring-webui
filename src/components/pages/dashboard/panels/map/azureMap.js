@@ -13,6 +13,7 @@ import $ from 'jquery';
 window.jQuery = $;
 require('signalr');
 
+const insideCameraBounds = require('point-in-polygon');
 const AzureMaps = window.atlas;
 
 export class AzureMap extends Component {
@@ -30,7 +31,7 @@ export class AzureMap extends Component {
       .fail(function () {
         console.log('Could not connect');
       });
-      // getting the hub proxy
+    // getting the hub proxy
     var notificationHubProxy = signalRConnection.createHubProxy('signalRNotificationHub');
 
     // attaching events listeners to the proxy
@@ -88,6 +89,29 @@ export class AzureMap extends Component {
         location.latitude
       ]);
       var pin = new AzureMaps.data.Feature(point);
+
+      // set cameras option and bring it to center
+      // var c = this.map.getCamera()
+      // c.center = [
+      //   location.longitude,
+      //   location.latitude
+      // ]
+      var cameraBounds = this.map.getCamera().bounds;
+      const point1 = [cameraBounds[1], cameraBounds[0]];
+      var point2 = [cameraBounds[1], cameraBounds[2]];
+      var point3 = [cameraBounds[3], cameraBounds[0]];
+      var point4 = [cameraBounds[3], cameraBounds[2]];
+
+      const cameraBoundsPolygon = [point1, point2, point3, point4];
+      const isVehicleInside = insideCameraBounds([location.latitude, location.longitude], cameraBoundsPolygon);
+      if(!isVehicleInside){
+        let c = this.map.getCamera();
+        c.center = [
+             location.longitude,
+             location.latitude
+          ];
+          this.map.setCamera(c);
+      }
 
       this.map.addPins([pin], {
         title: vehicleId,
